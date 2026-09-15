@@ -1,0 +1,172 @@
+// ============================================================================
+// CREDIT CARD FRAUD DETECTION & RISK INTELLIGENCE SYSTEM
+// DAX MEASURES SPECIFICATION FOR POWER BI
+// Table Reference: 'Transactions'
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// 1. Total Transactions Volume
+// ----------------------------------------------------------------------------
+Total Transactions = 
+COUNTROWS('Transactions')
+
+// ----------------------------------------------------------------------------
+// 2. Fraud Transactions Count (Model Identified)
+// ----------------------------------------------------------------------------
+Fraud Transactions = 
+CALCULATE(
+    COUNTROWS('Transactions'),
+    'Transactions'[Prediction] = "FRAUD"
+)
+
+// ----------------------------------------------------------------------------
+// 3. Legitimate Transactions Count
+// ----------------------------------------------------------------------------
+Legitimate Transactions = 
+CALCULATE(
+    COUNTROWS('Transactions'),
+    'Transactions'[Prediction] = "LEGITIMATE"
+)
+
+// ----------------------------------------------------------------------------
+// 4. Overall Fraud Rate Percentage
+// ----------------------------------------------------------------------------
+Fraud Rate = 
+DIVIDE(
+    [Fraud Transactions],
+    [Total Transactions],
+    0
+)
+
+// Format: 0.00%
+
+// ----------------------------------------------------------------------------
+// 5. Total Fraud Financial Exposure Amount ($)
+// ----------------------------------------------------------------------------
+Fraud Amount = 
+CALCULATE(
+    SUM('Transactions'[Amount]),
+    'Transactions'[Prediction] = "FRAUD"
+)
+
+// Format: $#,##0.00
+
+// ----------------------------------------------------------------------------
+// 6. Total Gross Transaction Value
+// ----------------------------------------------------------------------------
+Total Transaction Value = 
+SUM('Transactions'[Amount])
+
+// Format: $#,##0.00
+
+// ----------------------------------------------------------------------------
+// 7. Average Transaction Amount
+// ----------------------------------------------------------------------------
+Average Transaction Amount = 
+AVERAGE('Transactions'[Amount])
+
+// Format: $#,##0.00
+
+// ----------------------------------------------------------------------------
+// 8. Average Fraud Amount
+// ----------------------------------------------------------------------------
+Average Fraud Amount = 
+CALCULATE(
+    AVERAGE('Transactions'[Amount]),
+    'Transactions'[Prediction] = "FRAUD"
+)
+
+// Format: $#,##0.00
+
+// ----------------------------------------------------------------------------
+// 9. High Risk Transactions Count
+// ----------------------------------------------------------------------------
+High Risk Transactions = 
+CALCULATE(
+    COUNTROWS('Transactions'),
+    'Transactions'[Risk_Level] = "HIGH"
+)
+
+// ----------------------------------------------------------------------------
+// 10. Medium Risk Transactions Count
+// ----------------------------------------------------------------------------
+Medium Risk Transactions = 
+CALCULATE(
+    COUNTROWS('Transactions'),
+    'Transactions'[Risk_Level] = "MEDIUM"
+)
+
+// ----------------------------------------------------------------------------
+// 11. Low Risk Transactions Count
+// ----------------------------------------------------------------------------
+Low Risk Transactions = 
+CALCULATE(
+    COUNTROWS('Transactions'),
+    'Transactions'[Risk_Level] = "LOW"
+)
+
+// ----------------------------------------------------------------------------
+// 12. High Risk Exposure Rate (% of total volume classified as High Risk)
+// ----------------------------------------------------------------------------
+High Risk Rate = 
+DIVIDE(
+    [High Risk Transactions],
+    [Total Transactions],
+    0
+)
+
+// Format: 0.00%
+
+// ----------------------------------------------------------------------------
+// 13. True Positive Fraud Count (Ground Truth Confirmed)
+// ----------------------------------------------------------------------------
+True Positives = 
+CALCULATE(
+    COUNTROWS('Transactions'),
+    'Transactions'[Prediction] = "FRAUD",
+    'Transactions'[Actual_Class] = 1
+)
+
+// ----------------------------------------------------------------------------
+// 14. False Positive Alerts (Customer Friction / False Alarms)
+// ----------------------------------------------------------------------------
+False Positives = 
+CALCULATE(
+    COUNTROWS('Transactions'),
+    'Transactions'[Prediction] = "FRAUD",
+    'Transactions'[Actual_Class] = 0
+)
+
+// ----------------------------------------------------------------------------
+// 15. Operational Precision
+// ----------------------------------------------------------------------------
+Operational Precision = 
+DIVIDE(
+    [True Positives],
+    [True Positives] + [False Positives],
+    0
+)
+
+// Format: 0.0%
+
+// ----------------------------------------------------------------------------
+// 16. Actual Ground Truth Fraud Count
+// ----------------------------------------------------------------------------
+Actual Fraud Count = 
+CALCULATE(
+    COUNTROWS('Transactions'),
+    'Transactions'[Actual_Class] = 1
+)
+
+// ----------------------------------------------------------------------------
+// 17. Operational Recall (Fraud Capture Rate)
+// ----------------------------------------------------------------------------
+Operational Recall = 
+DIVIDE(
+    [True Positives],
+    [Actual Fraud Count],
+    0
+)
+
+// Format: 0.0%
+
