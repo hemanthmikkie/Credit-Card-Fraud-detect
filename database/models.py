@@ -1,4 +1,4 @@
-"""SQLAlchemy ORM models defining the transactions database schema."""
+"""SQLAlchemy ORM models for transaction persistence."""
 
 from datetime import datetime, timezone
 from sqlalchemy import (
@@ -15,26 +15,25 @@ from database.database import Base
 
 class TransactionRecord(Base):
     """
-    Transactions database table storing scored and monitored credit card events.
+    Transactions table stored in the configured SQLAlchemy database.
     Strictly devoid of PII or raw card numbers.
     """
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     transaction_id = Column(String(64), unique=True, nullable=False, index=True)
-    transaction_time = Column(Float, nullable=False, doc="Elapsed seconds or timestamp offset")
-    amount = Column(Float, nullable=False, doc="Transaction amount in currency units")
-    actual_class = Column(Integer, nullable=True, doc="0 for Legitimate, 1 for Fraudulent, NULL if unlabelled live")
-    predicted_class = Column(String(20), nullable=False, index=True, doc="LEGITIMATE or FRAUD")
-    fraud_probability = Column(Float, nullable=False, doc="Model output probability [0.0 - 1.0]")
-    risk_score = Column(Float, nullable=False, doc="Calculated risk score [0 - 100]")
-    risk_level = Column(String(10), nullable=False, index=True, doc="LOW, MEDIUM, or HIGH")
+    transaction_time = Column(Float, nullable=False)
+    amount = Column(Float, nullable=False)
+    actual_class = Column(Integer, nullable=True)
+    predicted_class = Column(String(20), nullable=False, index=True)
+    fraud_probability = Column(Float, nullable=False)
+    risk_score = Column(Float, nullable=False)
+    risk_level = Column(String(10), nullable=False, index=True)
     created_at = Column(
         DateTime,
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
-        index=True,
-        doc="Record timestamp"
+        index=True
     )
 
     __table_args__ = (
@@ -46,7 +45,6 @@ class TransactionRecord(Base):
     )
 
     def to_dict(self):
-        """Serialize record into dictionary."""
         return {
             "id": self.id,
             "transaction_id": self.transaction_id,
@@ -59,4 +57,3 @@ class TransactionRecord(Base):
             "risk_level": self.risk_level,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
-

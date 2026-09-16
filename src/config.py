@@ -36,10 +36,18 @@ RISK_THRESHOLD_HIGH = float(os.getenv("RISK_THRESHOLD_HIGH", 70.0))
 OPTIMAL_THRESHOLD = float(os.getenv("OPTIMAL_DECISION_THRESHOLD", 0.35))
 
 # Database Settings
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development").strip().lower()
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+psycopg2://postgres:postgres@localhost:5432/credit_card_fraud_db"
+    "mysql+pymysql://root:minnie@localhost:3306/Credit_Card_Fraud_Detection"
 )
+
+# SQLite fallback is intended for local development only. Production must fail
+# startup when the configured database is unavailable.
+ALLOW_SQLITE_FALLBACK = os.getenv(
+    "ALLOW_SQLITE_FALLBACK",
+    "true" if ENVIRONMENT == "development" else "false"
+).strip().lower() in {"1", "true", "yes", "on"}
 
 # SQLite fallback path for local offline development/testing
 SQLITE_FALLBACK_URL = f"sqlite:///{BASE_DIR / 'database' / 'credit_card_fraud.db'}"

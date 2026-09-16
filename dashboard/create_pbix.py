@@ -32,3 +32,4 @@ with zipfile.ZipFile(pbix_path, "w", zipfile.ZIP_DEFLATED) as zf:
     zf.writestr("Report/Layout", json.dumps(layout_data))
 
 print(f"Created template PBIX archive: {pbix_path}")
+
